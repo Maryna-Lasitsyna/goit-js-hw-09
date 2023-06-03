@@ -11,6 +11,7 @@ const refs = {
   hours: document.querySelector('span[data-hours]'),
   minutes: document.querySelector('span[data-minutes]'),
   seconds: document.querySelector('span[data-seconds]'),
+  // timer: document.querySelector('timer'),
 };
 
 const DELAY = 1000;
@@ -34,9 +35,13 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
+
+
 function addLeadingZero(value) {
-  return String(value).padStart(2, '0');
+  return value.toString().padStart(2, '0');
 }
+
+
 
 const options = {
   enableTime: true,
@@ -50,12 +55,11 @@ const options = {
       selectedDates[0] = new Date();
     } else {
       refs.startBtn.disabled = false;
+      refs.inputDate.disabled = true;
       selectedTime = selectedDates[0];
     }
   },
 };
-
-
 
 class Timer {
   constructor() {
@@ -73,13 +77,18 @@ class Timer {
     this.timerId = setInterval(() => {
       const currentTime = Date.now();
       const deltaTime = selectedTime - currentTime;
-      const componentsTimer = convertMs(deltaTime);
-      this.updateComponentsTimer(componentsTimer);
+
+      
       if (deltaTime <= 0) {
         this.stopTimer();
+        refs.inputDate.disabled = false;
+        return;
       }
+      const componentsTimer = convertMs(deltaTime);
+      this.updateComponentsTimer(componentsTimer);
     }, DELAY);
   }
+
   updateComponentsTimer({ days, hours, minutes, seconds }) {
     refs.days.textContent = days;
     refs.hours.textContent = hours;
@@ -87,13 +96,24 @@ class Timer {
     refs.seconds.textContent = seconds;
   }
 
+
+  
   stopTimer() {
     clearInterval(this.timerID);
   }
+}
+
+function formatNumber(num) {
+  return num < 10 ? `0${num}` : num;
 }
 
 const timer = new Timer();
 
 flatpickr(refs.inputDate, options);
 
-refs.startBtn.addEventListener('click', () => timer.startTimer());
+refs.startBtn.addEventListener('click', () => {
+  timer.startTimer();
+  refs.startBtn.disabled = true;
+});
+
+
